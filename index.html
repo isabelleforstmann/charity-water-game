@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pipe Puzzle Game</title>
+  <title>chairty:plumber</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Pipe Puzzle Game</h1>
+  <h1>charity:plumber</h1>
+  <img src="charity-water-logo-png.png" alt="Charity Water Logo" id="charity-logo" />
   <p>Moves: <span id="move-counter">0</span></p>
 
   <div id="game-board"></div>
@@ -15,7 +16,7 @@
   <div id="win-screen" style="display:none;">
     <h2>You Win! 🎉</h2>
     <p>Total Moves: <span id="final-moves">0</span></p>
-    <button onclick="restartGame()">Play Again</button>
+    <button onclick="restartGame()" id="playagain">Play Again</button>
   </div>
 
   <script src="src/index.js"></script>
