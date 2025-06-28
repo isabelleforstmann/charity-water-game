@@ -1,59 +1,96 @@
-const boardSize = 5;
+let boardSize = 5;
 const board = document.getElementById('game-board');
 const moveCounterEl = document.getElementById('move-counter');
 const winScreen = document.getElementById('win-screen');
 const finalMovesEl = document.getElementById('final-moves');
 
+// Add win counter
+const winCounterEl = document.createElement('span');
+winCounterEl.id = 'win-counter';
+let winCount = 0;
+
+function loadWinCount() {
+  winCount = parseInt(localStorage.getItem('winCount') || '0', 10);
+  winCounterEl.textContent = ` | Wins: ${winCount}`;
+  // Insert after moveCounterEl if not already present
+  if (!moveCounterEl.nextSibling || moveCounterEl.nextSibling.id !== 'win-counter') {
+    moveCounterEl.parentNode.insertBefore(winCounterEl, moveCounterEl.nextSibling);
+  }
+}
+
+function incrementWinCount() {
+  winCount++;
+  localStorage.setItem('winCount', winCount);
+  winCounterEl.textContent = ` | Wins: ${winCount}`;
+}
+
 let moveCount = 0;
 let grid = [];
 
-const tileSvgs = {
-  start: `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
-  <polygon points="10,70 40,10 70,70" fill="black"/>
+function getTileSvgs(tileSize) {
+  const svgHeader = (tileSize) =>
+    `width="${tileSize}" height="${tileSize}" viewBox="0 0 ${tileSize} ${tileSize}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:block;"`;
+
+  return {
+    start: `
+<svg ${svgHeader(tileSize)}>
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
+  <polygon points="${tileSize*0.125},${tileSize*0.875} ${tileSize/2},${tileSize*0.125} ${tileSize*0.875},${tileSize*0.875}" fill="black"/>
 </svg>`,
-  end:   `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
-  <rect x="20" y="40" width="40" height="30" fill="currentColor"/>
-  <rect x="30" y="30" width="20" height="10" fill="currentColor"/>
+
+    end: `
+<svg ${svgHeader(tileSize)}>
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
+  <rect x="${tileSize*0.25}" y="${tileSize*0.5}" width="${tileSize*0.5}" height="${tileSize*0.375}" fill="currentColor"/>
+  <rect x="${tileSize*0.375}" y="${tileSize*0.375}" width="${tileSize*0.25}" height="${tileSize*0.125}" fill="currentColor"/>
 </svg>`,
-  straight: `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
-  <rect x="35" y="0" width="10" height="80" fill="currentColor"/>
+
+    straight: `
+<svg ${svgHeader(tileSize)}>
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
+  <rect x="${tileSize*0.4375}" y="0" width="${tileSize*0.125}" height="${tileSize}" fill="currentColor"/>
 </svg>`,
-  elbow: `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
-  <rect x="35" y="35" width="10" height="45" fill="currentColor"/>
-  <rect x="35" y="35" width="45" height="10" fill="currentColor"/>
+
+    elbow: `
+<svg ${svgHeader(tileSize)}>
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
+  <rect x="${tileSize*0.4375}" y="${tileSize*0.4375}" width="${tileSize*0.125}" height="${tileSize*0.5625}" fill="currentColor"/>
+  <rect x="${tileSize*0.4375}" y="${tileSize*0.4375}" width="${tileSize*0.5625}" height="${tileSize*0.125}" fill="currentColor"/>
 </svg>`,
-  t: `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
+
+t: `
+<svg width="${tileSize}" height="${tileSize}" xmlns="http://www.w3.org/2000/svg">Add commentMore actions
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
   <!-- Vertical stem of T -->
-  <rect x="35" y="20" width="10" height="50" fill="currentColor"/>
+  <rect x="${tileSize*0.4375}" y="${tileSize*0.5}" width="${tileSize*0.125}" height="${tileSize*0.5}" fill="currentColor"/>
   <!-- Horizontal arm of T -->
-  <rect x="10" y="20" width="60" height="10" fill="currentColor"/>
+  <rect x="0" y="${tileSize * 0.4375}" width="${tileSize}" height="${tileSize * 0.125}" fill="currentColor"/>
 </svg>`,
-  cross: `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
-  <rect x="35" y="0" width="10" height="80" fill="currentColor"/>
-  <rect x="0" y="35" width="80" height="10" fill="currentColor"/>
+
+    cross: `
+<svg ${svgHeader(tileSize)}>
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
+  <rect x="${tileSize*0.4375}" y="0" width="${tileSize*0.125}" height="${tileSize}" fill="currentColor"/>
+  <rect x="0" y="${tileSize*0.4375}" width="${tileSize}" height="${tileSize*0.125}" fill="currentColor"/>
 </svg>`,
-  empty: `
-<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-  <rect width="80" height="80" fill="gold"/>
+
+    empty: `
+<svg ${svgHeader(tileSize)}>
+  <rect width="${tileSize}" height="${tileSize}" fill="gold"/>
 </svg>`,
-};
+  };
+}
+
+function getTileSize() {
+  if (boardSize === 5) return 80;
+  else if (boardSize === 6) return 65;
+  else if (boardSize === 7) return 55;
+}
 
 const tileTypes = ['straight', 'elbow', 't', 'cross', 'empty'];
 let timeoutRef = null;
 
-function createTile(type, rotation, x, y) {
+function createTile(type, rotation, x, y, tileSvgs) {
   const tile = document.createElement('div');
   tile.classList.add('tile');
 
@@ -150,6 +187,11 @@ function determineTileType(prev, curr, next) {
 
 function initBoard() {
   board.innerHTML = '';
+  const tileSize = getTileSize();
+  const tileSvgs = getTileSvgs(tileSize);
+  board.style.gridTemplateColumns = `repeat(${boardSize}, ${tileSize}px)`;
+  board.style.gridTemplateRows = `repeat(${boardSize}, ${tileSize}px)`;
+  board.style.setProperty('--tile-size', `${tileSize}px`);
   grid = [];
   moveCount = 0;
   moveCounterEl.textContent = '0';
@@ -204,7 +246,7 @@ function initBoard() {
       // Randomize rotation
       tileData.rotation = (tileData.rotation + (Math.floor(Math.random() * 4) * 90)) % 360;
 
-      const tile = createTile(tileData.type, tileData.rotation, x, y);
+      const tile = createTile(tileData.type, tileData.rotation, x, y, tileSvgs);
       board.appendChild(tile);
     }
   }
@@ -235,6 +277,9 @@ function checkWin() {
     finalMovesEl.textContent = moveCount;
     board.style.display = 'none';
     winScreen.style.display = 'block';
+    showWaterConfetti();
+    showWinPopup();
+    incrementWinCount();
   }
 }
 
@@ -265,7 +310,58 @@ function moveDelta(dir) {
 
 function restartGame() {
   board.style.display = 'grid';
+  winScreen.style.display = 'none';
+  hideWaterConfetti();
+  hideWinPopup();
   initBoard();
+  updatePipeColors();
+}
+
+function showWinPopup() {
+  const popup = document.getElementById('win-popup');
+  if (popup) popup.style.display = 'flex';
+}
+
+function hideWinPopup() {
+  const popup = document.getElementById('win-popup');
+  if (popup) popup.style.display = 'none';
+}
+
+let confettiLoopActive = false;
+
+function showWaterConfetti() {
+  const confetti = document.getElementById('water-confetti');
+  confetti.innerHTML = '';
+  confettiLoopActive = true;
+
+  function spawnDroplet() {
+    if (!confettiLoopActive) return;
+    const colors = ['','alt1','alt2','alt3'];
+    const sizes = ['','tiny','big'];
+    const droplet = document.createElement('div');
+    droplet.className = 'water-droplet ' +
+      (Math.random() < 0.2 ? sizes[Math.floor(Math.random()*sizes.length)] : '') +
+      ' ' +
+      (Math.random() < 0.7 ? colors[Math.floor(Math.random()*colors.length)] : '');
+    droplet.style.left = (10 + Math.random() * 80) + '%';
+    droplet.style.animationDelay = (Math.random() * 0.5) + 's';
+    droplet.addEventListener('animationend', () => {
+      droplet.remove();
+      if (confettiLoopActive) setTimeout(spawnDroplet, Math.random() * 300);
+    });
+    confetti.appendChild(droplet);
+  }
+
+  // Spawn initial batch
+  for (let i = 0; i < 22; i++) {
+    setTimeout(spawnDroplet, Math.random() * 500);
+  }
+}
+
+function hideWaterConfetti() {
+  confettiLoopActive = false;
+  const confetti = document.getElementById('water-confetti');
+  if (confetti) confetti.innerHTML = '';
 }
 
 function updatePipeColors() {
@@ -300,5 +396,13 @@ function updatePipeColors() {
   dfs(0, 0, null);
 }
 
+document.getElementById('mode-select').addEventListener('click', (e) => {
+  if (e.target.tagName === 'BUTTON') {
+    boardSize = parseInt(e.target.getAttribute('data-size'), 10);
+    restartGame();
+  }
+});
+
+loadWinCount();
 initBoard();
 updatePipeColors();

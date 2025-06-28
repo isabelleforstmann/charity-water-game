@@ -5,20 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>chairty:plumber</title>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>charity:plumber</h1>
-  <img src="charity-water-logo-png.png" alt="Charity Water Logo" id="charity-logo" />
-  <p>Moves: <span id="move-counter">0</span></p>
+  <!-- Add Bootstrap CSS -->
+  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css" />
 
+
+  <h1>charity:plumber</h1>
+  <p>Moves: <span id="move-counter">0</span></p>
+<div id="mode-select">
+  <button data-size="5">Easy</button>
+  <button data-size="6">Medium</button>
+  <button data-size="7">Hard</button>
+</div>
   <div id="game-board"></div>
 
   <div id="win-screen" style="display:none;">
     <h2>You Win! 🎉</h2>
+    <div id="water-confetti"></div>
+    <div id="win-popup"></div>
     <p>Total Moves: <span id="final-moves">0</span></p>
+    <p style="max-width:340px;margin:18px auto 8px auto;">
+      You did it! Learn about the real communities charity:water has served on their mission to increase clean water access globally.
+    </p>
+    <a href="https://www.charitywater.org/our-work" target="_blank" rel="noopener" style="display:inline-block;background:#3fa9f4;color:#fff;font-weight:600;padding:10px 28px;border-radius:22px;text-decoration:none;margin-bottom:18px;font-size:1.1em;">
+      Our Work
+    </a>
     <button onclick="restartGame()" id="playagain">Play Again</button>
   </div>
 
   <script src="src/index.js"></script>
 </body>
+<footer style="position:fixed;bottom:0;width:100%;background:#fff;padding:10px 0;box-shadow:0 -2px 8px rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:center;gap:24px;">
+  <a href="https://www.charitywater.org/" target="_blank" rel="noopener">
+    <img src="src/cw-logo-dark-BcPk1WVG.svg" alt="charity: water logo" style="height:32px;">
+  </a>
+  <a href="https://www.charitywater.org/take-action" target="_blank" rel="noopener" style="font-weight:600;color:#3fa9f4;text-decoration:none;font-size:1.1em;">
+    Take Action
+  </a>
+  <a href="https://www.charitywater.org/our-work" target="_blank" rel="noopener" style="font-weight:600;color:#3fa9f4;text-decoration:none;font-size:1.1em;">
+    Our Work
+  </a>
+</footer>
 </html>

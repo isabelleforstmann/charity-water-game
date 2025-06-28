@@ -14,9 +14,7 @@ body {
 }
 
 .tile {
-  width: 80px;
-  height: 80px;
-  background-color:#f6d512;
+  background-color:#ffca0a;
   border: 2px solid #333;
   display: flex;
   justify-content: center;
@@ -24,6 +22,12 @@ body {
   cursor: pointer;
   transition: transform 0.2s ease;
   color: gray;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  overflow: hidden;;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
 }
 
 .tile img {
@@ -37,8 +41,7 @@ body {
 }
 
 .tile.connected {
-  border: 3px solid blue;
-  color: blue;
+  color: rgb(84, 147, 211)
 }
 
 #playagain {
@@ -62,4 +65,146 @@ body {
   max-width: 50vw;
   width: 100%;
   height: auto;
+}
+
+#fountain-animation {
+  position: relative;
+  width: 80px;
+  height: 90px;
+  margin: 0 auto 18px auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.fountain-base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 40px;
+  height: 20px;
+  background: #3fa9f4;
+  border-radius: 0 0 20px 20px;
+  transform: translateX(-50%);
+  z-index: 1;
+  box-shadow: 0 2px 8px #3fa9f488;
+}
+
+.fountain-stream {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  width: 8px;
+  height: 40px;
+  background: linear-gradient(to top, #3fa9f4 80%, #b3e6ff 100%);
+  border-radius: 4px;
+  transform: translateX(-50%);
+  animation: fountain-stream-up 0.8s cubic-bezier(.5,0,.5,1) infinite alternate;
+  z-index: 2;
+}
+
+.fountain-droplet {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #3fa9f4;
+  border-radius: 50%;
+  opacity: 0.8;
+  transform: translateX(-50%) scaleY(0.7);
+  animation: fountain-droplet-jump 0.8s cubic-bezier(.5,0,.5,1) infinite alternate;
+  z-index: 3;
+}
+
+.fountain-droplet.left {
+  left: 35%;
+  width: 8px;
+  height: 8px;
+  animation-delay: 0.15s;
+  background: #4fc3f7;
+}
+
+.fountain-droplet.right {
+  left: 65%;
+  width: 8px;
+  height: 8px;
+  animation-delay: 0.3s;
+  background: #0288d1;
+}
+
+@keyframes fountain-stream-up {
+  0% { height: 40px; }
+  100% { height: 60px; }
+}
+
+@keyframes fountain-droplet-jump {
+  0% { bottom: 60px; opacity: 0.8; }
+  80% { opacity: 1; }
+  100% { bottom: 85px; opacity: 0; }
+}
+
+#water-confetti {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  margin: 0 auto 18px auto;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.water-droplet {
+  position: absolute;
+  width: 14px;
+  height: 18px;
+  opacity: 0.85;
+  border-radius: 50% 50% 60% 60% / 60% 60% 100% 100%;
+  background: linear-gradient(180deg, #b3e6ff 0%, #3fa9f4 80%);
+  box-shadow: 0 2px 6px #3fa9f488;
+  animation: water-confetti-fall 1.2s cubic-bezier(.5,0,.5,1) forwards;
+}
+
+.water-droplet.tiny {
+  width: 8px;
+  height: 10px;
+  opacity: 0.7;
+}
+
+.water-droplet.big {
+  width: 18px;
+  height: 24px;
+  opacity: 0.95;
+}
+
+.water-droplet.alt1 {
+  background: linear-gradient(180deg, #e1f5fe 0%, #4fc3f7 90%);
+}
+.water-droplet.alt2 {
+  background: linear-gradient(180deg, #b3e6ff 0%, #0288d1 90%);
+}
+.water-droplet.alt3 {
+  background: linear-gradient(180deg, #e0f7fa 0%, #039be5 90%);
+}
+
+@keyframes water-confetti-fall {
+  0% {
+    opacity: 0.9;
+    transform: translateY(0) scale(1) rotate(-10deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(60px) scale(1.1) rotate(10deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(110px) scale(0.8) rotate(24deg);
+  }
+}
+
+
+@keyframes win-popup-bounce {
+  0% { transform: scale(0.7) translateY(40px); opacity: 0; }
+  60% { transform: scale(1.08) translateY(-8px); opacity: 1; }
+  80% { transform: scale(0.97) translateY(2px);}
+  100% { transform: scale(1) translateY(0);}
 }
